@@ -21,6 +21,8 @@ torchinfo = "^1.8.0"
 torchview = "^0.2.6"
 onnx = "^1.15.0"
 loguru = "^0.7.2"
+tomlkit = "^0.12.4"
+tensorboard = "^2.16.2"
 
 
 [tool.poetry.group.dev.dependencies]

@@ -1,0 +1,17 @@
+[config_1]
+window_size = 10
+learning_rate = 0.001
+batch_size = 16
+max_iters = 1000
+eval_interval = 100
+train_val_split = 0.8
+checkpoint_interval = 100
+
+[config_2]
+learning_rate = 0.01
+batch_size = 32
+max_iters = 500
+eval_interval = 50
+train_val_split = 0.8
+checkpoint_interval = 100
+
