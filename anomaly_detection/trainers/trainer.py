@@ -109,10 +109,10 @@ class Trainer:
             logger.info(f"Resumed from checkpoint: {latest_checkpoint} at iteration {self.start_iter}")
 
 
-    def evaluate(self, 
-                 normal_dataset: DataLoader, 
-                 abnormal_dataset: DataLoader, 
-                 num_candidates: int):
+
+        
+        
+    def evaluate(self, normal_dataset: DataLoader, abnormal_dataset: DataLoader, num_candidates: int) -> tuple[float, float, float]:
         """
         Evaluate the model using both normal and abnormal datasets.
         Computes metrics such as precision, recall, and F1-measure.
@@ -120,51 +120,68 @@ class Trainer:
         :param normal_dataset: DataLoader for the normal test dataset.
         :param abnormal_dataset: DataLoader for the abnormal test dataset.
         :param num_candidates: Number of top predictions to consider as candidates.
+        :return: A tuple containing precision, recall, and F1-measure.
         """
+
         # Load the latest model checkpoint
         self.load_latest_checkpoint()
         logger.info("Latest model checkpoint loaded for evaluation.")
         
         self.model.eval()  # Ensure model is in evaluation mode
-        
-        # Aggregate scores and labels
-        scores = []
-        labels = []  # 0 for normal, 1 for abnormal
-        
-        # Process normal dataset
-        for xb, _ in normal_dataset:
-            with torch.no_grad():
-                # Model predictions are moved to CPU and converted to NumPy for compatibility with non-PyTorch libraries
-                scores_batch = self.model(xb).cpu().numpy()  # Move to CPU and convert to NumPy array for further processing
-            scores.extend(scores_batch)
-            labels.extend([0] * len(scores_batch))
-        
-        # Process abnormal dataset
-        for xb, _ in abnormal_dataset:
-            with torch.no_grad():
-                # Model predictions are moved to CPU and converted to NumPy for compatibility with non-PyTorch libraries
-                scores_batch = self.model(xb).cpu().numpy()  # Move to CPU and convert to NumPy array for further processing
-            scores.extend(scores_batch)
-            labels.extend([1] * len(scores_batch))
-        
-        scores = np.array(scores).flatten()
-        labels = np.array(labels)
 
-        logger.debug("scores: %s", scores)
-        logger.debug("labels: %s", labels)
+
+        # Initialize counters
+        true_positives = 0
+        false_positives = 0
+        false_negatives = 0
+
+        # Function to process datasets
+        def process_dataset(dataset, is_normal):
+            nonlocal true_positives, false_positives, false_negatives
+            for xb, yb in dataset:
+                with torch.no_grad():
+                    scores_batch = self.model(xb).cpu().numpy() # Move to CPU and convert to NumPy array for further processing
+                    # scores_batch.shape = (batch_size, num_classes)
+
+                    # Sort scores_batch along each row to get sorted indices of predictions
+                    sorted_indices = np.argsort(scores_batch, axis=1)
+
+                    # Select the last 'num_candidates' indices for each sample, which are the top predictions
+                    # since argsort sorts in ascending order, and the highest scores are considered 'top'.
+                    top_predictions = sorted_indices[:, -num_candidates:]
+
+                    # Expand yb to match the shape of top_predictions for element-wise comparison
+                    # yb.numpy()[:, None] transforms yb to a 2D column vector, enabling broadcasting when compared with top_predictions
+                    expanded_yb = yb.numpy()[:, None]
+
+                    # Check if the true label (expanded_yb) is among the top predictions for each sample
+                    # np.any(...) checks each row and returns True if the true label is found among the top predictions, False otherwise.
+                    # The result is a boolean array indicating whether each sample's true label was among the top predictions.
+                    correct_predictions = np.any(top_predictions == expanded_yb, axis=1)
+
+                    if is_normal:
+                        # For normal data, correct predictions are true positives, incorrect are false negatives
+                        true_positives += correct_predictions.sum()
+                        false_negatives += (~correct_predictions).sum()
+                    else:
+                        # For abnormal data, incorrect predictions are false positives
+                        false_positives += (~correct_predictions).sum()
+
+        # Process normal and abnormal datasets
+        process_dataset(normal_dataset, is_normal=True)
+        process_dataset(abnormal_dataset, is_normal=False)
+
+        # Compute precision, recall, and F1-measure
+        precision = true_positives / (true_positives + false_positives) if (true_positives + false_positives) > 0 else 0
+        recall = true_positives / (true_positives + false_negatives) if (true_positives + false_negatives) > 0 else 0
+        f1_measure = 2 * (precision * recall) / (precision + recall) if (precision + recall) > 0 else 0
+
+
+        logger.info(f'Precision: {precision:.4f}, Recall: {recall:.4f}, F1: {f1_measure:.4f}')
         
-        # Determine the threshold score for considering a datapoint as a candidate
-        # by selecting the score corresponding to the top num_candidates scores
-        threshold = np.sort(scores)[-num_candidates]
-        
-        # Predictions based on the threshold
-        predictions = (scores >= threshold).astype(int)
-        
-        precision, recall, f1, _ = precision_recall_fscore_support(labels, predictions, average='binary')
-        
-        logger.info(f'Precision: {precision:.4f}, Recall: {recall:.4f}, F1: {f1:.4f}')
-        
-        self.model.train()  # Set the model back to training mode
+        self.model.train() 
+
+        return precision, recall, f1_measure
 
 
     def save_checkpoint(self, iter_count: int):

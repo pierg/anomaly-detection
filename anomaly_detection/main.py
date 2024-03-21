@@ -13,27 +13,28 @@ from anomaly_detection.utils.string_utils import get_config_id
 
 # Global settings
 device = 'cuda' if torch.cuda.is_available() else 'cpu'
-window_size = 10  # Example, adjust as needed
-num_candidates = 5  # Example, adjust as needed
 
 # Setup logger
-if os.path.exists("debug.log"):
-    os.remove("debug.log")
+if os.path.exists("logs.log"):
+    os.remove("logs.log")
 logger.remove()
-logger.add("debug.log", format="{time} {level} {message}", level="INFO")
+logger.add("logs.log", format="{time:HH:mm:ss} {message}", level="INFO")
 
+
+configs = ["config_1"] 
+models = [("DeepLog", "original")]
 
 def main():
-    configs = ["config_1"]  # Extend with other configurations as needed
-    models = [("DeepLog", "original")]  # Extend with other models and variants as needed
 
     for config_name in configs:
         config = training_configs[config_name]
-        train_loader, val_loader = load_and_prepare_hdfs_data(main_repo / "data/hdfs")
+        train_loader, val_loader, test_normal_loader, test_abnormal_loader = load_and_prepare_hdfs_data(main_repo / "data/hdfs", config)
 
         for model_name, model_variant in models:
 
             config_id = get_config_id(model_name, model_variant, config)
+
+            print(f"Training {config_id} ...")
             
             model = get_model(model_name, model_variant).to(device)
 
@@ -49,7 +50,12 @@ def main():
                           eval_interval=config["eval_interval"],
                           checkpoint_interval=config["checkpoint_interval"])
 
-            trainer.evaluate()
+            precision, recall, f1_score = trainer.evaluate(test_normal_loader, 
+                             test_abnormal_loader, 
+                             num_candidates=config["num_candidates"])
+            
+            print(f"Training and evaluation completed for {config_id}")
+            print(f"Precision: {precision}, Recall: {recall}, F1 Score: {f1_score}")
 
             logger.info(f"Completed training and evaluation for {model_name} variant '{model_variant}' with config '{config_name}'")
 
