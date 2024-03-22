@@ -48,6 +48,9 @@ class Trainer:
 
         self.start_iter = 0  # Default start iteration
 
+        # Get the device from the model's parameters
+        self.device = next(self.model.parameters()).device
+
     def train(self, max_iters: int, eval_interval: int, checkpoint_interval: int = 1000):
         """
         Trains the model for a specified number of iterations.
@@ -64,6 +67,10 @@ class Trainer:
             for xb, yb in self.train_loader:
                 if iter_count >= max_iters:
                     break
+
+                # Move input tensors to the same device as the model
+                xb = xb.to(self.device)
+                yb = yb.to(self.device)
 
                 # Log the sizes of the input and target tensors
                 logger.debug(f'xb :\t{xb.size()}\t{xb.dtype}')

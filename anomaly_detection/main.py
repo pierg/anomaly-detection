@@ -17,15 +17,16 @@ from anomaly_detection.utils.configs import training_configs
 from anomaly_detection.trainers.trainer import Trainer
 from anomaly_detection.utils.string_utils import get_config_id
 
-# Setup device
-device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
-
 # Configure logger
 logger_config_path = "logs.log"
 if os.path.exists(logger_config_path):
     os.remove(logger_config_path)
 logger.remove()
 logger.add(logger_config_path, format="{time:HH:mm:ss} {level} {message}", level="INFO")
+
+# Setup device
+device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+logger.info(f"Using device: {device}")
 
 # Configurations and models
 configs = ["config_2"]
