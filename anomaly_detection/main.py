@@ -25,7 +25,7 @@ logger_config_path = "logs.log"
 if os.path.exists(logger_config_path):
     os.remove(logger_config_path)
 logger.remove()
-logger.add(logger_config_path, format="{time:HH:mm:ss} {level} {message}", level="DEBUG")
+logger.add(logger_config_path, format="{time:HH:mm:ss} {level} {message}", level="INFO")
 
 # Configurations and models
 configs = ["config_1"]
