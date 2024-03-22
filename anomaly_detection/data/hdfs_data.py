@@ -21,7 +21,7 @@ def load_hdfs_events(hdfs_data_path: Path, file_subpath: str, config: dict) -> D
     :return: DataLoader for the created dataset.
     """
     file_path = hdfs_data_path / file_subpath.strip("/")
-    events = HDFSEvents.from_text_file(file_path, nrows=100)
+    events = HDFSEvents.from_text_file(file_path, nrows=config["nrows"])
     dataset = HDFSEventsDataset(events, window_size=config["window_size"])
     return DataLoader(dataset, batch_size=config["batch_size"], collate_fn=lambda x: custom_collate_fn(x, config["window_size"], config["num_features"]))
 

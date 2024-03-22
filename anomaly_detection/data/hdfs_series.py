@@ -31,7 +31,7 @@ class HDFSEvents(LogEventTimeSeries):
         self.machine_column = machine_column
 
     @classmethod
-    def from_text_file(cls, path: Path, nrows: int = None) -> 'HDFSEvents':
+    def from_text_file(cls, path: Path, nrows: int = -1) -> 'HDFSEvents':
         """
         Create an HDFSEvents object from a text file.
 
@@ -45,13 +45,18 @@ class HDFSEvents(LogEventTimeSeries):
         events = []
         machines = []
 
+        print_interval = 10000  # Print a message every 10000 lines
         with open(path) as infile:
             for machine, line in enumerate(infile):
-                if nrows is not None and machine >= nrows:
+                if nrows != -1 and machine >= nrows:
                     break
                 for event in map(int, line.split()):
                     events.append(event)
                     machines.append(machine)
+                if (machine + 1) % print_interval == 0:
+                    print(f"Processed {machine + 1} lines...")
+
+        print(f"Finished processing. Total lines processed: {machine + 1}")
 
         data = pd.DataFrame({
             'timestamp': np.arange(len(events)),  # Increasing order

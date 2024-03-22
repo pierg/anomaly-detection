@@ -28,7 +28,7 @@ logger.remove()
 logger.add(logger_config_path, format="{time:HH:mm:ss} {level} {message}", level="INFO")
 
 # Configurations and models
-configs = ["config_1"]
+configs = ["config_2"]
 models = [
             ("DeepLog", "original"), 
             ("EnhancedDL", "original"), 
