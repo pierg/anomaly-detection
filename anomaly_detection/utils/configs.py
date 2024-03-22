@@ -1,3 +1,8 @@
+"""
+Author: Piergiuseppe Mallozzi
+Date: 2024
+"""
+
 import tomlkit
 # from models.deeplog import DeepLog
 import importlib

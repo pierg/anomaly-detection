@@ -3,3 +3,20 @@ input_size = 1
 hidden_size = 64
 num_layers = 2
 output_size = 28
+
+[EnhancedDL.original]
+input_size = 1
+hidden_size = 64
+num_layers = 2
+output_size = 28
+n_heads = 8 
+dropout = 0.1
+
+[TransformerDL.original]
+input_size = 1      # For 1-dimensional time series data
+d_model = 64        # The size to which input features are projected. Adjust as needed.
+n_blocks = 3        # The number of Transformer blocks. Adjust based on model complexity.
+output_size = 28    # The number of output features or classes
+block_size = 10     # Maximum length of the input sequences for positional encoding
+n_heads = 2         # The number of attention heads within each Transformer block
+dropout = 0.1       # Dropout rate for regularization

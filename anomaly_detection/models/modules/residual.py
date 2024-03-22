@@ -58,3 +58,6 @@ class Block(nn.Module):
         x_ffwd = self.ffwd(x_ln2)
         x = x + x_ffwd
         return x
+    
+
+    

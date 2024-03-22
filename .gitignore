@@ -32,6 +32,8 @@ wheels/
 
 output/
 
+data/hdfs_loghub/
+
 
 # Installer logs
 pip-log.txt

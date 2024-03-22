@@ -1,5 +1,6 @@
 [config_1]
 window_size = 10
+num_features = 1
 learning_rate = 0.001
 batch_size = 16
 max_iters = 1000
@@ -9,10 +10,12 @@ checkpoint_interval = 100
 num_candidates = 10
 
 [config_2]
-learning_rate = 0.01
-batch_size = 32
-max_iters = 500
-eval_interval = 50
+window_size = 10
+num_features = 1
+learning_rate = 0.001
+batch_size = 16
+max_iters = 1000
+eval_interval = 100
 train_val_split = 0.8
 checkpoint_interval = 100
 num_candidates = 10

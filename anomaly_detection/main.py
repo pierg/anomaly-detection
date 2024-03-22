@@ -1,18 +1,21 @@
+"""
+Author: Piergiuseppe Mallozzi
+Date: 2024
+"""
+
 import os
 import torch
 import torch.nn as nn
 from loguru import logger
-import json
 
 # Placeholder imports, replace with your actual modules
 from anomaly_detection.data.hdfs_data import load_and_prepare_hdfs_data
 from anomaly_detection.utils.io_utils import save_results
 from anomaly_detection.utils.models import get_model
-from anomaly_detection.utils.paths import main_repo, checkpoints_folder, logs_folder, models_folder
+from anomaly_detection.utils.paths import hdfs_deeplog_data_path, checkpoints_folder, logs_folder
 from anomaly_detection.utils.configs import training_configs
 from anomaly_detection.trainers.trainer import Trainer
 from anomaly_detection.utils.string_utils import get_config_id
-from anomaly_detection.utils.torch_utils import save_model_info
 
 # Setup device
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
@@ -22,16 +25,20 @@ logger_config_path = "logs.log"
 if os.path.exists(logger_config_path):
     os.remove(logger_config_path)
 logger.remove()
-logger.add(logger_config_path, format="{time:HH:mm:ss} {level} {message}", level="INFO")
+logger.add(logger_config_path, format="{time:HH:mm:ss} {level} {message}", level="DEBUG")
 
 # Configurations and models
 configs = ["config_1"]
-models = [("DeepLog", "original")]
+models = [
+            ("DeepLog", "original"), 
+            ("EnhancedDL", "original"), 
+            ("TransformerDL", "original")
+            ]
 
 def main():
     for config_name in configs:
         config = training_configs[config_name]
-        data_loaders = load_and_prepare_hdfs_data(main_repo / "data" / "hdfs", config)
+        data_loaders = load_and_prepare_hdfs_data(hdfs_deeplog_data_path, config)
         train_loader, val_loader, test_normal_loader, test_abnormal_loader = data_loaders
 
         for model_name, model_variant in models:
@@ -40,8 +47,8 @@ def main():
             logger.info(f"Training {config_id} ...")
             
             model = get_model(model_name, model_variant).to(device)
-            dummy_input = next(iter(train_loader))[0].to(device)
-            save_model_info(model, dummy_input, models_folder / f"{config_id}")
+            # dummy_input = next(iter(train_loader))[0].to(device)
+            # save_model_info(model, dummy_input, models_folder / f"{config_id}")
 
             optimizer = torch.optim.Adam(model.parameters(), lr=config["learning_rate"])
             loss_fn = nn.CrossEntropyLoss()

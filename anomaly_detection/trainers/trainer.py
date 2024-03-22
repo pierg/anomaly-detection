@@ -1,5 +1,9 @@
+"""
+Author: Piergiuseppe Mallozzi
+Date: 2024
+"""
+
 import os
-from sklearn.metrics import precision_recall_fscore_support
 import numpy as np
 import torch
 import torch.nn as nn
@@ -70,6 +74,7 @@ class Trainer:
                 
                 # Log the size of the output tensor
                 logger.debug(f'lts:\t{logits.size()}\t{logits.dtype}')
+                logger.debug(f'ys :\t{logits.size()}\t{logits.dtype}')
 
                 # Assuming your model's output and targets are already shaped correctly
                 loss = self.loss_fn(logits, yb)

@@ -1,3 +1,8 @@
+"""
+Author: Piergiuseppe Mallozzi
+Date: 2024
+"""
+
 import torch
 import torch.nn as nn
 from pathlib import Path

@@ -1,3 +1,11 @@
+"""
+Author: Piergiuseppe Mallozzi
+Date: 2024
+
+Reimplementation of the DeepLog model from the paper "DeepLog: Anomaly Detection and Diagnosis from System Logs through Deep Learning" by Min Du, Feifei Li, Guineng Zheng, Vivek Srikumar, and Guyue Huang.
+https://dl.acm.org/doi/pdf/10.1145/3133956.3134015
+"""
+
 import torch
 import torch.nn as nn
 from loguru import logger
@@ -26,9 +34,6 @@ class DeepLog(nn.Module):
         """
         Forward pass of the model.
         """
-        # Log input tensor size
-        x = x.float()
-        x = x.unsqueeze(-1)
         
         logger.debug(f'xin:\t{x.shape}\t{x.dtype}')
         

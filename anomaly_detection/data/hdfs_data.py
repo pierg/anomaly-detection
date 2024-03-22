@@ -1,5 +1,11 @@
+"""
+Author: Piergiuseppe Mallozzi
+Date: 2024
+"""
+
 from pathlib import Path
-from torch.utils.data import DataLoader, random_split
+from torch.utils.data import DataLoader, random_split, Dataset
+import torch
 from typing import Tuple
 
 from anomaly_detection.data.dataset import HDFSEventsDataset
@@ -17,25 +23,47 @@ def load_hdfs_events(hdfs_data_path: Path, file_subpath: str, config: dict) -> D
     file_path = hdfs_data_path / file_subpath.strip("/")
     events = HDFSEvents.from_text_file(file_path, nrows=100)
     dataset = HDFSEventsDataset(events, window_size=config["window_size"])
-    return DataLoader(dataset, batch_size=config["batch_size"])
+    return DataLoader(dataset, batch_size=config["batch_size"], collate_fn=lambda x: custom_collate_fn(x, config["window_size"], config["num_features"]))
+
+def custom_collate_fn(batch, window_size, num_features):
+    """
+    Custom collate function to transform and batch data.
+    """
+    batch_x = [item[0] for item in batch]  # Assuming item[0] is the features tensor
+    batch_y = [item[1] for item in batch]  # Assuming item[1] is the label
+    
+    batch_x_transformed = torch.stack([x.view(window_size, num_features).float() for x in batch_x])
+    
+    return batch_x_transformed, torch.tensor(batch_y)
+
+class TransformedHDFSDataset(Dataset):
+    def __init__(self, original_dataset, window_size, num_features):
+        self.original_dataset = original_dataset
+        self.window_size = window_size
+        self.num_features = num_features
+    
+    def __len__(self):
+        return len(self.original_dataset)
+    
+    def __getitem__(self, idx):
+        x, y = self.original_dataset[idx]
+        x_transformed = x.view(self.window_size, self.num_features).float()
+        return x_transformed, y
 
 def load_and_prepare_hdfs_data(hdfs_data_path: Path, config: dict) -> Tuple[DataLoader, DataLoader, DataLoader, DataLoader]:
     """
     Load data, create datasets, and split into training, validation, and test dataloaders.
-    
-    :param hdfs_data_path: Path object pointing to the base directory of HDFS data.
-    :param config: Configuration dictionary with settings like window size, batch size, and train-validation split ratio.
-    :return: A tuple containing train_loader, val_loader, test_normal_loader, and test_abnormal_loader.
     """
-    # Load and prepare training and validation data
+    # Load training and validation data
     train_val_loader = load_hdfs_events(hdfs_data_path, 'hdfs_train', config)
     total_size = len(train_val_loader.dataset)
     train_size = int(total_size * config["train_val_split"])
     val_size = total_size - train_size
     train_dataset, val_dataset = random_split(train_val_loader.dataset, [train_size, val_size])
 
-    train_loader = DataLoader(train_dataset, batch_size=config["batch_size"], shuffle=True)
-    val_loader = DataLoader(val_dataset, batch_size=config["batch_size"], shuffle=False)
+    # Applying transformations directly in the DataLoader through a custom collate function
+    train_loader = DataLoader(train_dataset, batch_size=config["batch_size"], shuffle=True, collate_fn=lambda x: custom_collate_fn(x, config["window_size"], config["num_features"]))
+    val_loader = DataLoader(val_dataset, batch_size=config["batch_size"], shuffle=False, collate_fn=lambda x: custom_collate_fn(x, config["window_size"], config["num_features"]))
 
     # Load test data
     test_normal_loader = load_hdfs_events(hdfs_data_path, 'hdfs_test_normal', config)

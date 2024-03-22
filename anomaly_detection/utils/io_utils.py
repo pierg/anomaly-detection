@@ -1,3 +1,8 @@
+"""
+Author: Piergiuseppe Mallozzi
+Date: 2024
+"""
+
 from anomaly_detection.utils.paths import output_folder
 import json
 
