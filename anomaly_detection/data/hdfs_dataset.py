@@ -13,7 +13,7 @@ class HDFSEventsDataset(Dataset):
     Each sample in the dataset consists of a context window of events and the target event.
     """
 
-    def __init__(self, events: HDFSEvents, window_size: int = 10):
+    def __init__(self, events: HDFSEvents, window_size: int = 10, device: str = torch.device('cuda' if torch.cuda.is_available() else 'cpu')):
         """
         Initialize the HDFSEventsDataset.
 
@@ -23,6 +23,7 @@ class HDFSEventsDataset(Dataset):
         """
         self.events = events
         self.window_size = window_size
+        self.device = device
 
         # Prepare data for sliding window
         self.data = self._prepare_data()
@@ -42,8 +43,8 @@ class HDFSEventsDataset(Dataset):
             events_array = machine_group['event'].values
             # Create context windows
             for i in range(len(events_array) - self.window_size):
-                context_window = torch.tensor(events_array[i:i+self.window_size], dtype=torch.long)
-                target_event = torch.tensor(events_array[i+self.window_size], dtype=torch.long)
+                context_window = torch.tensor(events_array[i:i+self.window_size], dtype=torch.long, device=self.device)
+                target_event = torch.tensor(events_array[i+self.window_size], dtype=torch.long, device=self.device)
                 data.append((context_window, target_event))
 
         return data

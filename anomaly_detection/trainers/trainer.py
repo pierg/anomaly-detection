@@ -152,24 +152,15 @@ class Trainer:
             nonlocal true_positives, false_positives, false_negatives
             for xb, yb in dataset:
                 with torch.no_grad():
-                    scores_batch = self.model(xb).cpu().numpy() # Move to CPU and convert to NumPy array for further processing
-                    # scores_batch.shape = (batch_size, num_classes)
+                    # Calculate scores and convert to NumPy for processing
+                    scores_batch = self.model(xb).cpu().numpy()
 
-                    # Sort scores_batch along each row to get sorted indices of predictions
-                    sorted_indices = np.argsort(scores_batch, axis=1)
+                    # Get indices of top 'num_candidates' predictions for each sample
+                    top_predictions = np.argsort(scores_batch, axis=1)[:, -num_candidates:]
 
-                    # Select the last 'num_candidates' indices for each sample, which are the top predictions
-                    # since argsort sorts in ascending order, and the highest scores are considered 'top'.
-                    top_predictions = sorted_indices[:, -num_candidates:]
+                    # Check if true labels are among top predictions, avoiding redundant shape expansion
+                    correct_predictions = np.isin(yb.cpu().numpy(), top_predictions)
 
-                    # Expand yb to match the shape of top_predictions for element-wise comparison
-                    # yb.numpy()[:, None] transforms yb to a 2D column vector, enabling broadcasting when compared with top_predictions
-                    expanded_yb = yb.numpy()[:, None]
-
-                    # Check if the true label (expanded_yb) is among the top predictions for each sample
-                    # np.any(...) checks each row and returns True if the true label is found among the top predictions, False otherwise.
-                    # The result is a boolean array indicating whether each sample's true label was among the top predictions.
-                    correct_predictions = np.any(top_predictions == expanded_yb, axis=1)
 
                     if is_normal:
                         # For normal data, correct predictions are true positives, incorrect are false negatives

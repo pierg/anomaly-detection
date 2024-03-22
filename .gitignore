@@ -6,6 +6,9 @@ __pycache__/
 # C extensions
 *.so
 
+*.err
+*.out
+
 # Distribution / packaging
 .Python
 build/
@@ -23,6 +26,8 @@ wheels/
 *.egg-info/
 .installed.cfg
 *.egg
+
+.nfs*
 
 poetry.lock
 
