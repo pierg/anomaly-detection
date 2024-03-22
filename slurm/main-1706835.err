@@ -1,0 +1,8 @@
+
+Lmod is automatically replacing "gnu9/9.3.0" with "gnu10/10.3.0-ya".
+
+
+Inactive Modules:
+  1) openmpi4
+
+python: can't open file '/home/pmallozz/anomaly_detection/main.py': [Errno 2] No such file or directory
