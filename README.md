@@ -2,10 +2,10 @@
     <h1 align="center">anomaly detection</h1>
 </p>
 <p align="center">
-	<img src="https://img.shields.io/github/license/pierg/anomaly_detection?style=default&logo=opensourceinitiative&logoColor=white&color=0080ff" alt="license">
-	<img src="https://img.shields.io/github/last-commit/pierg/anomaly_detection?style=default&logo=git&logoColor=white&color=0080ff" alt="last-commit">
-	<img src="https://img.shields.io/github/languages/top/pierg/anomaly_detection?style=default&color=0080ff" alt="repo-top-language">
-	<img src="https://img.shields.io/github/languages/count/pierg/anomaly_detection?style=default&color=0080ff" alt="repo-language-count">
+	<img src="https://img.shields.io/github/license/pierg/anomaly-detection?style=default&logo=opensourceinitiative&logoColor=white&color=0080ff" alt="license">
+	<img src="https://img.shields.io/github/last-commit/pierg/anomaly-detection?style=default&logo=git&logoColor=white&color=0080ff" alt="last-commit">
+	<img src="https://img.shields.io/github/languages/top/pierg/anomaly-detection?style=default&color=0080ff" alt="repo-top-language">
+	<img src="https://img.shields.io/github/languages/count/pierg/anomaly-detection?style=default&color=0080ff" alt="repo-language-count">
 <p>
 <p align="center">
 </p>
@@ -34,15 +34,15 @@ Anomaly detection system using various deep learning models, including Transform
 
 ###  Installation
 
-1. Clone the anomaly_detection repository:
+1. Clone the anomaly-detection repository:
 
 ```console
-$ git clone https://github.com/pierg/anomaly_detection
+$ git clone https://github.com/pierg/anomaly-detection
 ```
 
 2. Change to the project directory:
 ```console
-$ cd anomaly_detection
+$ cd anomaly-detection
 ```
 
 3. Install the dependencies:
@@ -52,7 +52,7 @@ $ poetry install
 
 ###  Usage
 
-Run anomaly_detection using the command below:
+Run anomaly-detection using the command below:
 ```console
 $ python main.py
 ```
@@ -64,9 +64,9 @@ $ python main.py
 ##  Repository Structure
 
 ```sh
-└── anomaly_detection/
+└── anomaly-detection/
     ├── README.md
-    ├── anomaly_detection
+    ├── anomaly-detection
     │   ├── __init__.py
     │   ├── configs
     │   ├── data
