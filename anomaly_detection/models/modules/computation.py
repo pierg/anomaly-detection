@@ -15,7 +15,7 @@ class FeedForward(nn.Module):
     This design choice follows the principle of increasing the dimensionality of the intermediate layer
     to provide a richer representation space before compressing the outputs back to the original dimension.
     """
-    
+
     def __init__(self, n_embd: int, dropout: float = 0.1):
         """
         Initializes the feedforward network.
@@ -26,10 +26,17 @@ class FeedForward(nn.Module):
         """
         super().__init__()
         self.net = nn.Sequential(
-            nn.Linear(n_embd, 4 * n_embd), # Expansion layer: Increases capacity and allows for capturing more complex patterns.
-            nn.ReLU(),                     # Introduces non-linearity, enabling the network to learn non-linear functions.
-            nn.Linear(4 * n_embd, n_embd), # Compression layer: Reduces dimensionality back, focusing on the most relevant features.
-            nn.Dropout(dropout),           # Applies dropout for regularization, improving generalization.
+            # Expansion layer: Increases capacity and allows for capturing more
+            # complex patterns.
+            nn.Linear(n_embd, 4 * n_embd),
+            # Introduces non-linearity, enabling the network to learn
+            # non-linear functions.
+            nn.ReLU(),
+            # Compression layer: Reduces dimensionality back, focusing on the
+            # most relevant features.
+            nn.Linear(4 * n_embd, n_embd),
+            # Applies dropout for regularization, improving generalization.
+            nn.Dropout(dropout),
         )
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:

@@ -5,7 +5,8 @@ Date: 2024
 
 import torch
 import torch.nn as nn
-from models.modules.head import Head
+
+from anomaly_detection.models.modules.head import Head
 
 
 class MultiHeadAttention(nn.Module):
@@ -20,8 +21,10 @@ class MultiHeadAttention(nn.Module):
     from all heads combined matches the input embedding dimensionality. This constraint is necessary
     to allow the seamless integration of the Multi-Head Attention output with subsequent layers in the model.
     """
-    
-    def __init__(self, num_heads: int, n_embd: int, block_size: int, dropout: float = 0.1):
+
+    def __init__(
+        self, num_heads: int, n_embd: int, block_size: int, dropout: float = 0.1
+    ):
         """
         Initializes the Multi-Head Attention module.
 
@@ -32,15 +35,25 @@ class MultiHeadAttention(nn.Module):
         - dropout (float): Dropout rate for regularization.
         """
         super(MultiHeadAttention, self).__init__()
-        # Ensure the embedding dimension can be evenly divided by the number of heads
-        assert n_embd % num_heads == 0, "Embedding dimension must be divisible by num_heads"
+        # Ensure the embedding dimension can be evenly divided by the number of
+        # heads
+        assert (
+            n_embd % num_heads == 0
+        ), "Embedding dimension must be divisible by num_heads"
 
         self.head_size = n_embd // num_heads  # Dimensionality of each head's output
-        
-        self.heads = nn.ModuleList([
-            Head(head_size=self.head_size, n_embd=n_embd, block_size=block_size, dropout=dropout)
-            for _ in range(num_heads)
-        ])
+
+        self.heads = nn.ModuleList(
+            [
+                Head(
+                    head_size=self.head_size,
+                    n_embd=n_embd,
+                    block_size=block_size,
+                    dropout=dropout,
+                )
+                for _ in range(num_heads)
+            ]
+        )
 
         # Projecting back to n_embd dimensions
         self.proj = nn.Linear(self.head_size * num_heads, n_embd)
@@ -59,10 +72,9 @@ class MultiHeadAttention(nn.Module):
         """
         # Concatenate the outputs of all heads
         out = torch.cat([head(x) for head in self.heads], dim=-1)
-        
+
         # Project back to n_embd dimensions and apply dropout
         out = self.proj(out)
         out = self.dropout(out)
-        
-        return out
 
+        return out

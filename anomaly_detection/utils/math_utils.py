@@ -30,7 +30,8 @@ Date: 2024
 #     :param num_samples: Number of samples to draw.
 #     :return: Indices sampled according to the given probability distribution.
 #     """
-#     return np.array([np.random.choice(len(p), size=num_samples, p=p) for p in probs])
+# return np.array([np.random.choice(len(p), size=num_samples, p=p) for p
+# in probs])
 
 # def cross_entropy_loss(logits: np.ndarray, targets: np.ndarray) -> float:
 #     """
@@ -47,4 +48,3 @@ Date: 2024
 #     # Compute the mean negative log probability
 #     loss = -np.mean(correct_logits)
 #     return loss
-

@@ -3,12 +3,14 @@ Author: Piergiuseppe Mallozzi
 Date: 2024
 """
 
-from loguru import logger
 import torch
 import torch.nn as nn
+from loguru import logger
 
-from anomaly_detection.models.modules.positional_encoding import SinusoidalPositionalEncoding, EmbeddingPositionalEncoding
+from anomaly_detection.models.modules.positional_encoding import (
+    EmbeddingPositionalEncoding, SinusoidalPositionalEncoding)
 from anomaly_detection.models.modules.residual import Block
+
 
 class TransformerDL(nn.Module):
     """
@@ -21,7 +23,18 @@ class TransformerDL(nn.Module):
     and an output layer for final predictions, accommodating the requirement to grasp the sequential
     context and dependencies across elements in the input sequence.
     """
-    def __init__(self, input_size, d_model, block_size, n_heads, n_blocks, output_size, pos_embedding='sinusoidal', dropout=0.1):
+
+    def __init__(
+        self,
+        input_size,
+        d_model,
+        block_size,
+        n_heads,
+        n_blocks,
+        output_size,
+        pos_embedding="sinusoidal",
+        dropout=0.1,
+    ):
         """
         Initializes the TransformerDL model with the specified architecture components.
 
@@ -40,17 +53,21 @@ class TransformerDL(nn.Module):
         self.input_projection = nn.Linear(input_size, d_model)
 
         # Positional encoding selection based on the pos_embedding argument
-        if pos_embedding == 'sinusoidal':
+        if pos_embedding == "sinusoidal":
             self.pos_encoder = SinusoidalPositionalEncoding(d_model, block_size)
         else:
             # Assumes alternative is the embedding-based positional encoding
             self.pos_encoder = EmbeddingPositionalEncoding(d_model, block_size)
 
         # Initializing the Transformer blocks
-        self.blocks = nn.ModuleList([
-            Block(n_embd=d_model, n_head=n_heads, block_size=block_size, dropout=0.1)
-            for _ in range(n_blocks)
-        ])
+        self.blocks = nn.ModuleList(
+            [
+                Block(
+                    n_embd=d_model, n_head=n_heads, block_size=block_size, dropout=0.1
+                )
+                for _ in range(n_blocks)
+            ]
+        )
 
         # Output layer for the model predictions
         self.output_layer = nn.Linear(d_model, output_size)
@@ -65,17 +82,17 @@ class TransformerDL(nn.Module):
         Returns:
         - Tensor: The output tensor with shape [batch_size, sequence_length, output_size].
         """
-        logger.debug(f'x:\t{x.shape}\t{x.dtype}')
-    
+        logger.debug(f"x:\t{x.shape}\t{x.dtype}")
+
         # Project input to match d_model dimensions
         x = self.input_projection(x)
-        
-        logger.debug(f'x:\t{x.shape}\t{x.dtype}')
+
+        logger.debug(f"x:\t{x.shape}\t{x.dtype}")
 
         # Apply positional encoding
         x = self.pos_encoder(x)
 
-        logger.debug(f'x:\t{x.shape}\t{x.dtype}')
+        logger.debug(f"x:\t{x.shape}\t{x.dtype}")
 
         # Pass x through each Transformer block
         for block in self.blocks:
@@ -83,11 +100,11 @@ class TransformerDL(nn.Module):
 
         # Select the output of the last token
         x = x[:, -1, :]  # Shape: [batch_size, d_model]
-        logger.debug(f'x:\t{x.shape}\t{x.dtype}')
-        
+        logger.debug(f"x:\t{x.shape}\t{x.dtype}")
+
         # Final prediction
         x = self.output_layer(x)  # Shape: [batch_size, output_size]
 
-        logger.debug(f'x:\t{x.shape}\t{x.dtype}')
+        logger.debug(f"x:\t{x.shape}\t{x.dtype}")
 
         return x

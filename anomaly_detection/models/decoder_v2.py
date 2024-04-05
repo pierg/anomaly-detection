@@ -7,6 +7,7 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 
+
 class GPT_v2(nn.Module):
     """
     An evolved version of the GPT model that introduces a linear layer (language model head) on top of the embeddings.
@@ -16,7 +17,7 @@ class GPT_v2(nn.Module):
     Compared to GPT_v1, this model adds a linear transformation layer, enhancing its ability to capture the nuances
     of the language by providing a flexible mechanism for generating logits, rather than relying solely on embeddings.
     """
-    
+
     def __init__(self, vocab_size: int, n_embd: int) -> None:
         """
         Initializes the GPT_v2 model with an embedding layer and a linear layer for the language model head.
@@ -46,10 +47,13 @@ class GPT_v2(nn.Module):
         enabling a richer understanding and generation of sequences.
         """
         tok_emb = self.token_embedding_table(indices)  # Convert indices to embeddings
-        logits = self.lm_head(tok_emb)  # Apply linear layer to embeddings to get logits
+        # Apply linear layer to embeddings to get logits
+        logits = self.lm_head(tok_emb)
         return logits
 
-    def generate(self, start_indices: torch.Tensor, max_new_tokens: int) -> torch.Tensor:
+    def generate(
+        self, start_indices: torch.Tensor, max_new_tokens: int
+    ) -> torch.Tensor:
         """
         Generates new tokens based on the given starting sequence, using the model's current understanding
         and prediction capabilities.
@@ -67,9 +71,14 @@ class GPT_v2(nn.Module):
         indices = start_indices
         for _ in range(max_new_tokens):
             logits = self(indices)  # Obtain logits for the current sequence
-            logits = logits[:, -1, :]  # Focus on the logits for the last token in the sequence
-            probabilities = F.softmax(logits, dim=-1)  # Compute softmax to get probabilities
-            next_index = torch.multinomial(probabilities, num_samples=1)  # Sample the next token
-            indices = torch.cat((indices, next_index), dim=1)  # Append the new token to the sequence
+            # Focus on the logits for the last token in the sequence
+            logits = logits[:, -1, :]
+            # Compute softmax to get probabilities
+            probabilities = F.softmax(logits, dim=-1)
+            next_index = torch.multinomial(
+                probabilities, num_samples=1
+            )  # Sample the next token
+            # Append the new token to the sequence
+            indices = torch.cat((indices, next_index), dim=1)
 
         return indices

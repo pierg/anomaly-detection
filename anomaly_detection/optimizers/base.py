@@ -5,10 +5,12 @@ Date: 2024
 
 import torch
 
+
 class Optimizer:
     """
     Base class for all optimizers.
     """
+
     def __init__(self, params, lr=0.001):
         """
         Initializes the optimizer.

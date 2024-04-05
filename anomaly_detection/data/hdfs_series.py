@@ -4,9 +4,12 @@ Date: 2024
 """
 
 from pathlib import Path
+
 import numpy as np
 import pandas as pd
-from series.events_time_series import LogEventTimeSeries
+
+from anomaly_detection.series.events_time_series import LogEventTimeSeries
+
 
 class HDFSEvents(LogEventTimeSeries):
     """
@@ -16,8 +19,14 @@ class HDFSEvents(LogEventTimeSeries):
             the text file contains a space-separated sequence of event IDs for a
             machine. I.e. for *n* machines, there will be *n* lines in the file.
     """
-    
-    def __init__(self, data: pd.DataFrame, event_column: str, time_column: str, machine_column: str) -> None:
+
+    def __init__(
+        self,
+        data: pd.DataFrame,
+        event_column: str,
+        time_column: str,
+        machine_column: str,
+    ) -> None:
         """
         Initialize the HDFSEvents object.
 
@@ -31,7 +40,7 @@ class HDFSEvents(LogEventTimeSeries):
         self.machine_column = machine_column
 
     @classmethod
-    def from_text_file(cls, path: Path, nrows: int = -1) -> 'HDFSEvents':
+    def from_text_file(cls, path: Path, nrows: int = -1) -> "HDFSEvents":
         """
         Create an HDFSEvents object from a text file.
 
@@ -58,12 +67,17 @@ class HDFSEvents(LogEventTimeSeries):
 
         print(f"Finished processing. Total lines processed: {machine + 1}")
 
-        data = pd.DataFrame({
-            'timestamp': np.arange(len(events)),  # Increasing order
-            'event': events,
-            'machine': machines,
-        })
-        
-        return cls(data, event_column='event', time_column='timestamp', machine_column='machine')
+        data = pd.DataFrame(
+            {
+                "timestamp": np.arange(len(events)),  # Increasing order
+                "event": events,
+                "machine": machines,
+            }
+        )
 
-
+        return cls(
+            data,
+            event_column="event",
+            time_column="timestamp",
+            machine_column="machine",
+        )

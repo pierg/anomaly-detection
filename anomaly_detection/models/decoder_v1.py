@@ -7,13 +7,14 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 
+
 class GPT_v1(nn.Module):
     """
     A simplistic implementation of a Bigram Language Model that uses an embedding layer to map
     vocabulary indices to dense vector representations. This model is the first step in building
     towards more complex Transformer-based models.
     """
-    
+
     def __init__(self, vocab_size: int) -> None:
         """
         Initializes the GPT model with a single embedding layer.
@@ -45,7 +46,9 @@ class GPT_v1(nn.Module):
         logits = self.embedding(indices)
         return logits
 
-    def generate(self, start_indices: torch.Tensor, max_new_tokens: int) -> torch.Tensor:
+    def generate(
+        self, start_indices: torch.Tensor, max_new_tokens: int
+    ) -> torch.Tensor:
         """
         Generates new tokens based on the given starting sequence.
 
@@ -62,9 +65,14 @@ class GPT_v1(nn.Module):
         indices = start_indices
         for _ in range(max_new_tokens):
             logits = self(indices)  # Obtain logits for the current sequence
-            logits = logits[:, -1, :]  # Focus on the logits for the last token in the sequence
-            probabilities = F.softmax(logits, dim=-1)  # Compute softmax to get probabilities
-            next_index = torch.multinomial(probabilities, num_samples=1)  # Sample the next token
-            indices = torch.cat((indices, next_index), dim=1)  # Append the new token to the sequence
+            # Focus on the logits for the last token in the sequence
+            logits = logits[:, -1, :]
+            # Compute softmax to get probabilities
+            probabilities = F.softmax(logits, dim=-1)
+            next_index = torch.multinomial(
+                probabilities, num_samples=1
+            )  # Sample the next token
+            # Append the new token to the sequence
+            indices = torch.cat((indices, next_index), dim=1)
 
         return indices

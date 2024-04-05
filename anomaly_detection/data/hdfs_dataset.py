@@ -3,9 +3,11 @@ Author: Piergiuseppe Mallozzi
 Date: 2024
 """
 
-from torch.utils.data import Dataset
 import torch
-from data.hdfs_series import HDFSEvents
+from torch.utils.data import Dataset
+
+from anomaly_detection.data.hdfs_series import HDFSEvents
+
 
 class HDFSEventsDataset(Dataset):
     """
@@ -13,7 +15,12 @@ class HDFSEventsDataset(Dataset):
     Each sample in the dataset consists of a context window of events and the target event.
     """
 
-    def __init__(self, events: HDFSEvents, window_size: int = 10, device: str = torch.device('cuda' if torch.cuda.is_available() else 'cpu')):
+    def __init__(
+        self,
+        events: HDFSEvents,
+        window_size: int = 10,
+        device: str = torch.device("cuda" if torch.cuda.is_available() else "cpu"),
+    ):
         """
         Initialize the HDFSEventsDataset.
 
@@ -39,12 +46,20 @@ class HDFSEventsDataset(Dataset):
         events_data = self.events.data
 
         # Iterate over each machine group
-        for machine_id, machine_group in events_data.groupby('machine'):
-            events_array = machine_group['event'].values
+        for machine_id, machine_group in events_data.groupby("machine"):
+            events_array = machine_group["event"].values
             # Create context windows
             for i in range(len(events_array) - self.window_size):
-                context_window = torch.tensor(events_array[i:i+self.window_size], dtype=torch.long, device=self.device)
-                target_event = torch.tensor(events_array[i+self.window_size], dtype=torch.long, device=self.device)
+                context_window = torch.tensor(
+                    events_array[i : i + self.window_size],
+                    dtype=torch.long,
+                    device=self.device,
+                )
+                target_event = torch.tensor(
+                    events_array[i + self.window_size],
+                    dtype=torch.long,
+                    device=self.device,
+                )
                 data.append((context_window, target_event))
 
         return data

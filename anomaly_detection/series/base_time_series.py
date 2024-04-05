@@ -4,10 +4,12 @@ Date: 2024
 """
 
 from abc import ABC, abstractmethod
-import plotly.express as px
-import pandas as pd
+
 import numpy as np
+import pandas as pd
+import plotly.express as px
 import torch
+
 
 class BaseTimeSeries(ABC):
     """
@@ -54,7 +56,7 @@ class BaseTimeSeries(ABC):
             torch.Tensor: The data as a PyTorch tensor.
         """
         return torch.tensor(self.data.values, dtype=torch.float)
-    
+
     def visualize(self, title="Time Series Visualization", y=None, **kwargs):
         """
         Visualizes the time series data using Plotly.
@@ -65,6 +67,9 @@ class BaseTimeSeries(ABC):
             **kwargs: Additional keyword arguments for Plotly's line plot function.
         """
         if y is None:
-            y = self.data.columns[0]  # Default to the first column if none specified
-        fig = px.line(self.data.reset_index(), x=self.data.index.name, y=y, title=title, **kwargs)
+            # Default to the first column if none specified
+            y = self.data.columns[0]
+        fig = px.line(
+            self.data.reset_index(), x=self.data.index.name, y=y, title=title, **kwargs
+        )
         fig.show()

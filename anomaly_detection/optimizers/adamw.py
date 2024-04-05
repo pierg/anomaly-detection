@@ -5,13 +5,14 @@ Date: 2024
 
 import torch
 
-from optimizers.base import Optimizer
+from anomaly_detection.optimizers.base import Optimizer
 
 
 class AdamW(Optimizer):
     """
     Implements AdamW optimizer, a variant of the Adam optimizer with weight decay.
     """
+
     def __init__(self, params, lr=0.001, betas=(0.9, 0.999), eps=1e-8, weight_decay=0):
         """
         Initializes the AdamW optimizer.
@@ -40,7 +41,9 @@ class AdamW(Optimizer):
                 continue
 
             self.m[i] = self.betas[0] * self.m[i] + (1 - self.betas[0]) * param.grad
-            self.v[i] = self.betas[1] * self.v[i] + (1 - self.betas[1]) * (param.grad ** 2)
+            self.v[i] = self.betas[1] * self.v[i] + (1 - self.betas[1]) * (
+                param.grad**2
+            )
 
             m_hat = self.m[i] / (1 - self.betas[0] ** self.t)
             v_hat = self.v[i] / (1 - self.betas[1] ** self.t)
